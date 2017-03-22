@@ -22,7 +22,7 @@ except NameError:
 
 from django.db.models.query import QuerySet
 from django.db.models import Model, permalink
-from django.utils import simplejson
+import json
 from django.utils.xmlutils import SimplerXMLGenerator
 from django.utils.encoding import smart_unicode
 from django.core.urlresolvers import reverse, NoReverseMatch
@@ -175,10 +175,7 @@ class Emitter(object):
                 # use the list_fields from the base handler and accept that
                 # the nested models won't appear properly
                 # Refs #157
-                if handler:
-                    fields = getattr(handler, 'fields')    
-                
-                if not fields or hasattr(handler, 'fields'):
+                if not fields and hasattr(handler, 'fields'):
                     """
                     Fields was not specified, try to find teh correct
                     version in the typemapper we were sent.
@@ -192,7 +189,7 @@ class Emitter(object):
 
                     if not get_fields:
                         get_fields = set([ f.attname.replace("_id", "", 1)
-                            for f in data._meta.fields + data._meta.virtual_fields])
+                            for f in list(data._meta.fields) + list(data._meta.virtual_fields)])
                     
                     if hasattr(mapped, 'extra_fields'):
                         get_fields.update(mapped.extra_fields)
@@ -315,7 +312,7 @@ class Emitter(object):
             return dict([ (k, _any(v, fields)) for k, v in data.iteritems() ])
 
         # Kickstart the seralizin'.
-        self.stack = [];
+        self.stack = []
         return _any(self.data, self.fields)
 
     def in_typemapper(self, model, anonymous):
@@ -407,7 +404,7 @@ class JSONEmitter(Emitter):
     """
     def render(self, request):
         cb = request.GET.get('callback', None)
-        seria = simplejson.dumps(self.construct(), cls=DateTimeAwareJSONEncoder, ensure_ascii=False, indent=4)
+        seria = json.dumps(self.construct(), cls=DateTimeAwareJSONEncoder, ensure_ascii=False, indent=4)
 
         # Callback
         if cb and is_valid_jsonp_callback_value(cb):
@@ -416,7 +413,7 @@ class JSONEmitter(Emitter):
         return seria
 
 Emitter.register('json', JSONEmitter, 'application/json; charset=utf-8')
-Mimer.register(simplejson.loads, ('application/json',))
+Mimer.register(json.loads, ('application/json',))
 
 class YAMLEmitter(Emitter):
     """

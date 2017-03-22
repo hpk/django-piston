@@ -10,10 +10,7 @@ from django.core.mail import send_mail, EmailMessage
 from django.db.models.query import QuerySet
 from django.http import Http404
 
-try:
-    import mimeparse
-except ImportError:
-    mimeparse = None
+mimeparse = None
 
 from emitters import Emitter
 from handler import typemapper
@@ -227,7 +224,7 @@ class Resource(object):
             else: stream = srl.render(request)
 
             if not isinstance(stream, HttpResponse):
-                resp = HttpResponse(stream, mimetype=ct, status=status_code)
+                resp = HttpResponse(stream, content_type=ct, status=status_code)
             else:
                 resp = stream
 
@@ -241,6 +238,8 @@ class Resource(object):
     def _use_emitter(result):
         """True iff result is a HttpResponse and contains non-string content."""
         if not isinstance(result, HttpResponse):
+            return False
+        elif django.VERSION >= (1, 7):
             return False
         elif django.VERSION >= (1, 4):
             return result._base_content_is_iter

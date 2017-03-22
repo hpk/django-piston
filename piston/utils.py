@@ -79,7 +79,7 @@ class rc_factory(object):
                 else:
                     self._is_string = is_string
 
-            content = property(HttpResponse._get_content, _set_content)            
+            content = property(HttpResponse.content.getter, _set_content)            
 
         return HttpResponseWrapper(r, content_type='text/plain', status=c)
     
@@ -235,7 +235,7 @@ class Mimer(object):
         """
         type_formencoded = "application/x-www-form-urlencoded"
 
-        ctype = self.request.META.get('CONTENT_TYPE', type_formencoded)
+        ctype = self.request.content_type
         
         if type_formencoded in ctype:
             return None
@@ -263,7 +263,7 @@ class Mimer(object):
             
             if loadee:
                 try:
-                    self.request.data = loadee(self.request.raw_post_data)
+                    self.request.data = loadee(self.request.body)
                         
                     # Reset both POST and PUT from request, as its
                     # misleading having their presence around.
