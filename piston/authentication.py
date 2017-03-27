@@ -105,7 +105,7 @@ def load_data_store():
     return cls
 
 # Set the datastore here.
-oauth_datastore = load_data_store()
+# oauth_datastore = load_data_store()
 
 def initialize_server_request(request):
     """
