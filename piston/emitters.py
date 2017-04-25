@@ -26,7 +26,7 @@ import json
 from django.utils.xmlutils import SimplerXMLGenerator
 from django.utils.encoding import smart_unicode
 from django.core.urlresolvers import reverse, NoReverseMatch
-from django.core.serializers.json import DateTimeAwareJSONEncoder
+from django.core.serializers.json import DjangoJSONEncoder
 from django.http import HttpResponse
 from django.core import serializers
 
@@ -404,7 +404,7 @@ class JSONEmitter(Emitter):
     """
     def render(self, request):
         cb = request.GET.get('callback', None)
-        seria = json.dumps(self.construct(), cls=DateTimeAwareJSONEncoder, ensure_ascii=False, indent=4)
+        seria = json.dumps(self.construct(), cls=DjangoJSONEncoder, ensure_ascii=False, indent=4)
 
         # Callback
         if cb and is_valid_jsonp_callback_value(cb):
